@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Sample Forest Area of Interest (AOI)</name>
+    <description>Sub-plot boundary for OSBS NEON site</description>
+    <Placemark>
+      <name>Inventory Sub-Plot A</name>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -81.9900344,29.6923764,0
+              -81.9897450,29.6923786,0
+              -81.9897475,29.6926313,0
+              -81.9900369,29.6926291,0
+              -81.9900344,29.6923764,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

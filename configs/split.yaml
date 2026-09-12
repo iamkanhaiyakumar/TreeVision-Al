@@ -1,0 +1,37 @@
+# TreeVision AI — Geographic / Site-Level Split Configuration
+# Strict zero-leakage partition by NEON ecological sites
+
+train_sites:
+  - site: OSBS
+    name: "Ordway-Swisher Biological Station, FL"
+    biome: "Southeastern Coastal Plain / Longleaf Pine"
+    crs: "EPSG:32617"
+  - site: MLBS
+    name: "Mountain Lake Biological Station, VA"
+    biome: "Appalachian Deciduous / Mixed Hardwood"
+    crs: "EPSG:32617"
+
+val_sites:
+  - site: SOAP
+    name: "Soaproot Saddle, CA"
+    biome: "Sierra Nevada Mixed Conifer / Oak"
+    crs: "EPSG:32611"
+
+test_sites:
+  - site: HARV
+    name: "Harvard Forest, MA"
+    biome: "Northern Temperate Hardwood / Hemlock"
+    crs: "EPSG:32618"
+  - site: TEAK
+    name: "Teakettle, CA"
+    biome: "Sierra Nevada High Montane Conifer"
+    crs: "EPSG:32611"
+  - site: YELL
+    name: "Yellowstone Northern Range, WY"
+    biome: "Northern Rocky Mountains Subalpine Conifer"
+    crs: "EPSG:32612"
+
+split_rules:
+  spatial_autocorrelation_prevention: true
+  allow_site_overlap: false
+  min_confidence_filter: 0.30

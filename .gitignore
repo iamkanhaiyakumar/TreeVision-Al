@@ -1,0 +1,38 @@
+# Python & Virtual Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+
+# Model Weights & Checkpoints (large binary files)
+*.pt
+*.pth
+*.onnx
+models/custom/*.pt
+models/deepforest/*
+
+# Datasets & Imagery (DO NOT COMMIT RAW SATELLITE/AIRBORNE DATA)
+datasets/neon/csv/*.csv
+!datasets/neon/csv/sample_*.csv
+datasets/neon/imagery/*.tif
+datasets/neon/imagery/*.tiff
+datasets/neon/processed/
+datasets/neon/*.zip
+
+# Runs, Caches & Logs
+runs/
+experiments/*/weights/
+outputs/
+logs/
+.cache/
+wandb/
+
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

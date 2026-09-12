@@ -1,0 +1,41 @@
+# TreeVision AI — Master Configuration File
+
+project:
+  name: "TreeVision AI"
+  subtitle: "Automated Tree Crown Detection & Canopy Analysis"
+  version: "1.0.0"
+  random_seed: 42
+
+model:
+  default_model: "custom" # "custom" or "deepforest"
+  custom_weights: "models/custom/best.pt"
+  yolo_base: "yolov8s.pt" # Efficient, high-accuracy lightweight detector
+
+training:
+  imgsz: 640
+  epochs: 15
+  batch_size: 8
+  learning_rate: 0.005
+  optimizer: "AdamW"
+  workers: 2
+  device: "cpu" # Default CPU fallback; overridden to GPU on Lightning AI / CUDA
+
+inference:
+  confidence_threshold: 0.35
+  iou_threshold: 0.45
+  max_detections: 5000
+
+tiling:
+  tile_size: 640
+  overlap: 0.15 # 15% overlap for boundary continuity
+  cross_tile_iou_threshold: 0.40
+
+geospatial:
+  assumed_gsd_fallback: 0.10 # 10 cm/pixel default for unreferenced airborne imagery
+  canopy_elliptical_fill_factor: 0.785398 # pi / 4 approximation for crown fill inside bounding box
+  export_geojson: true
+  export_csv: true
+
+ui:
+  sample_image_path: "demo/sample_forest.tif"
+  max_image_dimension: 4096
