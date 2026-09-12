@@ -15,6 +15,13 @@ import time
 import requests
 from tqdm import tqdm
 
+# Ensure UTF-8 output on Windows console
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 def download_file(url, target_path, expected_size=None):
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
     
@@ -22,7 +29,7 @@ def download_file(url, target_path, expected_size=None):
     if os.path.exists(target_path):
         current_size = os.path.getsize(target_path)
         if expected_size and current_size >= expected_size:
-            print(f"  ✓ Already downloaded: {os.path.basename(target_path)} ({current_size / (1024*1024):.1f} MB)")
+            print(f"  [OK] Already downloaded: {os.path.basename(target_path)} ({current_size / (1024*1024):.1f} MB)")
             return True
         headers = {"Range": f"bytes={current_size}-"}
         mode = "ab"
@@ -53,7 +60,7 @@ def download_file(url, target_path, expected_size=None):
                     bar.update(len(chunk))
         return True
     except Exception as e:
-        print(f"  ❌ Error downloading {os.path.basename(target_path)}: {e}")
+        print(f"  [ERROR] downloading {os.path.basename(target_path)}: {e}")
         return False
 
 def download_neon_dataset(target_dir="datasets/neon/csv", sites=None):
@@ -67,7 +74,7 @@ def download_neon_dataset(target_dir="datasets/neon/csv", sites=None):
             files = json.load(f)
 
     print("=" * 65)
-    print("🌲 TREEVISION AI — NEON DATASET BULK DOWNLOADER")
+    print("TREEVISION AI -- NEON DATASET BULK DOWNLOADER")
     print(f"Target Directory: {os.path.abspath(target_dir)}")
     print(f"Total Available Files: {len(files)}")
     print("=" * 65)
