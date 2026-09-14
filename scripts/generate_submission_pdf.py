@@ -183,19 +183,20 @@ def create_submission_pdf(output_path="TreeVision_AI_Submission_Explanation.pdf"
     story.append(Paragraph("6. Known Limitations & Failure Modes (Honesty in Carbon Markets)", h1_style))
     limitations = [
         "<b>Bounding-Box Area Approximation:</b> Rectangular bounding boxes overestimate organic circular/elliptical crown area by ~21%. True exact area requires validated polygon segmentation masks.",
-        "<b>Resolution Degradation:</b> System requires high-resolution imagery (≤30 cm/pixel). Coarse commercial/satellite imagery (e.g. 3m Planet, 10m Sentinel-2) cannot separate discrete stems.",
+        "<b>Nadir vs. Oblique/Web Imagery:</b> Models are strictly trained on nadir (vertical top-down) airborne rasters. Oblique side-angle photos or small web thumbnails (<640px) lack GSD calibration and cause false alarms as foliage textures mimic miniature crowns.",
+        "<b>Resolution Degradation:</b> System requires sub-meter imagery (≤30 cm/pixel). Coarse satellite data (e.g. 3m Planet, 10m Sentinel-2) cannot separate discrete stems.",
         "<b>Dense Closed-Canopy Merging:</b> In interlocking deciduous stands, touching crowns merge into single detections, causing systematic under-counting in closed forests.",
-        "<b>Deep Topographic Shadows:</b> Low solar elevation causes shadow occlusion on north-facing slopes, suppressing needle contrast.",
-        "<b>Automated Estimate Disclosure:</b> Outputs represent remote-sensing estimates and do not replace physical ground inventory plots."
+        "<b>Shadow & Aspect Occlusion:</b> Low solar elevation causes shadow occlusion on steep north-facing slopes, suppressing needle contrast.",
+        "<b>Automated Remote-Sensing Estimate:</b> Outputs represent remote-sensing estimates and do not replace physical ground inventory plots."
     ]
     for lim in limitations:
         story.append(Paragraph(f"• {lim}", bullet_style))
-        story.append(Spacer(1, 1.2))
+        story.append(Spacer(1, 1.1))
 
     story.append(Spacer(1, 2))
     story.append(Paragraph("7. Future Improvements", h1_style))
     story.append(Paragraph(
-        "1) Multi-node cloud GPU training on Lightning AI across all 37 NEON sites. "
+        "1) Multi-node cloud GPU training across all 37 NEON biomes. "
         "2) Sensor fusion combining airborne RGB with LiDAR Canopy Height Models (CHM) to separate interlocking crowns in 3D. "
         "3) Few-shot fine-tuning with Segment Anything Model (SAM) for polygonal masks. "
         "4) Multi-temporal change detection for automated deforestation auditing.",
