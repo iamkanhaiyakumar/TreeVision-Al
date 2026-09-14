@@ -146,9 +146,9 @@ confidence_thresh = st.sidebar.slider(
     "Confidence Threshold",
     min_value=0.15,
     max_value=0.90,
-    value=0.40,
+    value=0.15,
     step=0.05,
-    help="Minimum model confidence score required to accept a tree crown detection. Recommended: 0.40 (77.2% precision) or 0.55 (85.3% precision)."
+    help="Minimum model confidence score required to accept a tree crown detection. Set to minimum (0.15) for high sensitivity."
 )
 
 with st.sidebar.expander("⚙️ Advanced Geospatial Parameters"):
