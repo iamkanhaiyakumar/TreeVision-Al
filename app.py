@@ -84,7 +84,7 @@ st.markdown('<div class="sub-header">Automated Individual Tree Crown Detection &
 st.sidebar.header("📁 Input Imagery & Area")
 
 # Preset Sample Data Toggle
-use_sample_data = st.sidebar.checkbox("Load Sample NEON Forest GeoTIFF", value=True, help="Loads verified sample GeoTIFF from Ordway-Swisher Biological Station (OSBS_029.tif).")
+use_sample_data = st.sidebar.checkbox("Load Sample NEON Forest GeoTIFF", value=False, help="Loads verified sample GeoTIFF from Ordway-Swisher Biological Station (OSBS_029.tif).")
 
 uploaded_image = None
 image_path_to_process = None
@@ -278,9 +278,14 @@ if image_path_to_process and analyze_button:
     except Exception as err:
         st.error(f"Analysis encountered an error: {err}")
 
+elif analyze_button and not image_path_to_process:
+    st.warning("⚠️ **No image selected!** Please upload a forest image (GeoTIFF, PNG, JPG) in the sidebar or check **'Load Sample NEON Forest GeoTIFF'**.")
+
 elif not analyze_button:
-    # First screen explanatory walkthrough
-    st.info("👈 Click **'🌲 Analyze Forest Imagery'** in the sidebar to process the verified sample forest GeoTIFF.")
+    if use_sample_data or uploaded_image:
+        st.info("👈 Click **'🌲 Analyze Forest Imagery'** in the sidebar to run tree crown detection.")
+    else:
+        st.info("👈 **Get Started:** Upload your forest image (GeoTIFF, PNG, JPG) in the sidebar, or check **'Load Sample NEON Forest GeoTIFF'** for a quick demonstration, then click **'🌲 Analyze Forest Imagery'**.")
     
     st.markdown("""
     ### How TreeVision AI Works
