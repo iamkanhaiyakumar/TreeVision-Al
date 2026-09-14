@@ -8,9 +8,7 @@ import os
 import sys
 import tempfile
 import json
-import numpy as np
 import pandas as pd
-from PIL import Image
 import streamlit as st
 
 # Ensure project root in sys.path
@@ -23,7 +21,6 @@ from src.inference import (
     export_results_to_dataframe,
     export_results_to_geojson
 )
-from src.geospatial import read_geospatial_metadata
 
 # Page configuration
 st.set_page_config(
@@ -146,9 +143,9 @@ confidence_thresh = st.sidebar.slider(
     "Confidence Threshold",
     min_value=0.15,
     max_value=0.90,
-    value=0.15,
+    value=0.30,
     step=0.05,
-    help="Minimum model confidence score required to accept a tree crown detection. Set to minimum (0.15) for high sensitivity."
+    help="Minimum model confidence score required to accept a tree crown detection. Default: 0.30."
 )
 
 with st.sidebar.expander("⚙️ Advanced Geospatial Parameters"):
@@ -277,6 +274,19 @@ if image_path_to_process and analyze_button:
 
     except Exception as err:
         st.error(f"Analysis encountered an error: {err}")
+        print(f"TreeVision pipeline error: {type(err).__name__}: {err}")
+
+    finally:
+        if temp_image_file is not None:
+            try:
+                os.unlink(temp_image_file.name)
+            except OSError:
+                pass
+        if temp_kml_file is not None:
+            try:
+                os.unlink(temp_kml_file.name)
+            except OSError:
+                pass
 
 elif analyze_button and not image_path_to_process:
     st.warning("⚠️ **No image selected!** Please upload a forest image (GeoTIFF, PNG, JPG) in the sidebar or check **'Load Sample NEON Forest GeoTIFF'**.")
