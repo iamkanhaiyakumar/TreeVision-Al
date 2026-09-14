@@ -1,15 +1,13 @@
 {
-  "model": "Custom YOLOv8s (Trained on NEON)",
-  "test_site": "YELL (Yellowstone Northern Range)",
-  "ground_truth_count": 279,
-  "predicted_count": 523,
-  "true_positives": 123,
-  "false_positives": 400,
-  "false_negatives": 156,
-  "precision": 0.2352,
-  "recall": 0.4409,
-  "f1_score": 0.3067,
-  "count_error_pct": 87.46,
-  "area_error_pct": 532.42,
-  "avg_confidence": 98.1
+  "model": "TreeVision_YOLOv8s_LightningAI",
+  "epochs": 100,
+  "batch_size": 8,
+  "imgsz": 640,
+  "device": "0",
+  "total_train_time_sec": 70.78,
+  "precision": 0.0,
+  "recall": 0.0,
+  "mAP50": 0.0,
+  "mAP50_95": 0.0,
+  "f1": 0.0
 }

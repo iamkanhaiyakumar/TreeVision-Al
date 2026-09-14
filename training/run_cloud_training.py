@@ -31,12 +31,18 @@ def run():
     # 2. Ensure running on T4
     if str(studio.status).lower() != "running":
         print("\n[2/6] Starting Studio on Tesla T4 GPU...")
-        studio.start(machine="T4")
-        print("Studio is now RUNNING on Tesla T4 GPU!")
-    elif str(studio.machine).upper() != "T4":
-        print(f"\n[2/6] Switching Studio machine from {studio.machine} to T4...")
-        studio.switch_machine("T4")
-        print(f"Studio switched to T4 GPU!")
+        try:
+            studio.start(machine="T4_SMALL")
+        except Exception:
+            studio.start()
+        print(f"Studio is now RUNNING on {studio.machine} GPU!")
+    elif "T4" not in str(studio.machine).upper() and "GPU" not in str(studio.machine).upper():
+        print(f"\n[2/6] Switching Studio machine from {studio.machine} to T4_SMALL...")
+        try:
+            studio.switch_machine("T4_SMALL")
+            print("Studio switched to T4 GPU!")
+        except Exception as e:
+            print(f"Note on switch machine: {e}")
     else:
         print(f"\n[2/6] Studio is already RUNNING on {studio.machine} GPU.")
 
@@ -61,7 +67,7 @@ def run():
 
     try:
         # 5. Run GPU Training
-        print("\n[5/6] Starting 30-Epoch GPU Training on Cloud Studio...")
+        print("\n[5/6] Starting 100-Epoch GPU Training (Option B) on Cloud Studio...")
         print("=" * 65)
         train_output = studio.run("python training/lightning_train.py")
         print("Training Output:\n", train_output)

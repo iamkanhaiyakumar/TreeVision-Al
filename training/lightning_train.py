@@ -70,9 +70,9 @@ def prepare_lightning_dataset(base_dir="datasets/neon/processed"):
     print(f"Config YAML: {data_yaml_path}")
     return data_yaml_path
 
-def train_on_lightning(data_yaml, device, epochs=30, batch_size=8, imgsz=640, lr=0.005):
+def train_on_lightning(data_yaml, device, epochs=100, batch_size=8, imgsz=640, lr=0.003):
     print("\n" + "=" * 65)
-    print("🚀 LAUNCHING CLOUD GPU MODEL TRAINING")
+    print("🚀 LAUNCHING 100-EPOCH CLOUD GPU MODEL TRAINING (OPTION B)")
     print(f"Epochs: {epochs} | Batch: {batch_size} | Imgsz: {imgsz} | Device: {device}")
     print("=" * 65)
 
@@ -88,6 +88,14 @@ def train_on_lightning(data_yaml, device, epochs=30, batch_size=8, imgsz=640, lr
         imgsz=imgsz,
         batch=batch_size,
         lr0=lr,
+        lrf=0.01,
+        cos_lr=True,
+        mosaic=1.0,
+        mixup=0.15,
+        flipud=0.5,
+        fliplr=0.5,
+        degrees=15.0,
+        patience=25,
         device=device,
         project="lightning_runs",
         name="treevision_yolo",
@@ -149,8 +157,8 @@ def train_on_lightning(data_yaml, device, epochs=30, batch_size=8, imgsz=640, lr
 def main():
     device = check_gpu()
     data_yaml = prepare_lightning_dataset()
-    # 30 epochs on GPU takes ~1-2 minutes on T4/A10G
-    epochs = 30 if device != "cpu" else 5
+    # 100 epochs on T4 GPU takes ~2-3 minutes
+    epochs = 100 if device != "cpu" else 5
     batch = 8 if device != "cpu" else 2
     train_on_lightning(data_yaml=data_yaml, device=device, epochs=epochs, batch_size=batch)
 
