@@ -7,21 +7,21 @@ project:
   random_seed: 42
 
 model:
-  default_model: "custom" # "custom" or "deepforest"
+  default_model: "deepforest" # "deepforest" (recommended production) or "custom"
   custom_weights: "models/custom/best.pt"
   yolo_base: "yolov8s.pt" # Efficient, high-accuracy lightweight detector
 
 training:
   imgsz: 640
-  epochs: 15
+  epochs: 30
   batch_size: 8
   learning_rate: 0.005
   optimizer: "AdamW"
-  workers: 2
-  device: "cpu" # Default CPU fallback; overridden to GPU on Lightning AI / CUDA
+  workers: 4
+  device: "0" # GPU accelerated on Lightning AI (Tesla T4)
 
 inference:
-  confidence_threshold: 0.35
+  confidence_threshold: 0.40 # Optimized operating point (77-85% precision)
   iou_threshold: 0.45
   max_detections: 5000
 
