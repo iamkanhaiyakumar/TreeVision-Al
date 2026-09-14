@@ -38,110 +38,20 @@ def check_gpu():
         print("⚠️ Warning: No GPU detected! Running on CPU fallback.")
         return "cpu"
 
-def prepare_lightning_dataset(base_dir="dataset_lightning"):
+def prepare_lightning_dataset(base_dir="datasets/neon/processed"):
     print("\n" + "=" * 65)
-    print("📦 PREPARING NEON BENCHMARK DATASET")
+    print("📦 VERIFYING NEON BENCHMARK DATASET")
     print("=" * 65)
     
-    os.makedirs(base_dir, exist_ok=True)
-    images_dir = os.path.join(base_dir, "images")
-    labels_dir = os.path.join(base_dir, "labels")
-    
-    for split in ["train", "val", "test"]:
-        os.makedirs(os.path.join(images_dir, split), exist_ok=True)
-        os.makedirs(os.path.join(labels_dir, split), exist_ok=True)
-
-    # Use DeepForest's built-in curated NEON benchmark sites
-    try:
-        import deepforest
-        from deepforest import get_data
-        data_dir = os.path.dirname(get_data("OSBS_029.tif"))
-    except ImportError:
-        print("Installing deepforest in environment...")
-        os.system("pip install deepforest ultralytics rasterio shapely")
-        import deepforest
-        from deepforest import get_data
-        data_dir = os.path.dirname(get_data("OSBS_029.tif"))
-
-    import pandas as pd
-    import xml.etree.ElementTree as ET
-
-    # Strict Zero-Leakage Site Split across ecological biomes
-    site_mapping = {
-        "train": [
-            ("OSBS_029.png", "OSBS_029.csv")   # Florida Longleaf Pine
-        ],
-        "val": [
-            ("SOAP_061.png", "SOAP_061.xml")   # California Mixed Conifer
-        ],
-        "test": [
-            ("2019_YELL_2_541000_4977000_image_crop.png", "2019_YELL_2_541000_4977000_image_crop.xml")  # Rocky Mountain Subalpine
-        ]
-    }
-
-    def convert_box(xmin, ymin, xmax, ymax, img_w, img_h):
-        xmin = max(0.0, min(float(img_w), xmin))
-        ymin = max(0.0, min(float(img_h), ymin))
-        xmax = max(0.0, min(float(img_w), xmax))
-        ymax = max(0.0, min(float(img_h), ymax))
-        bw = xmax - xmin
-        bh = ymax - ymin
-        if bw < 2.0 or bh < 2.0:
-            return None
-        xc = (xmin + xmax) / (2.0 * img_w)
-        yc = (ymin + ymax) / (2.0 * img_h)
-        nw = bw / float(img_w)
-        nh = bh / float(img_h)
-        return 0, round(xc, 6), round(yc, 6), round(nw, 6), round(nh, 6)
-
-    stats = {}
-    for split, files in site_mapping.items():
-        stats[split] = {"images": 0, "trees": 0}
-        for img_name, annot_name in files:
-            img_src = os.path.join(data_dir, img_name)
-            annot_src = os.path.join(data_dir, annot_name)
-            if not os.path.exists(img_src) or not os.path.exists(annot_src):
-                continue
-
-            img = Image.open(img_src).convert("RGB")
-            w, h = img.size
-            img_dst = os.path.join(images_dir, split, img_name)
-            img.save(img_dst)
-
-            boxes = []
-            if annot_name.endswith(".csv"):
-                df = pd.read_csv(annot_src)
-                for _, r in df.iterrows():
-                    boxes.append((float(r["xmin"]), float(r["ymin"]), float(r["xmax"]), float(r["ymax"])))
-            elif annot_name.endswith(".xml"):
-                tree = ET.parse(annot_src)
-                for obj in tree.findall(".//object"):
-                    bnd = obj.find("bndbox")
-                    if bnd is not None:
-                        boxes.append((
-                            float(bnd.find("xmin").text),
-                            float(bnd.find("ymin").text),
-                            float(bnd.find("xmax").text),
-                            float(bnd.find("ymax").text)
-                        ))
-
-            yolo_lines = []
-            for b in boxes:
-                res = convert_box(b[0], b[1], b[2], b[3], w, h)
-                if res:
-                    yolo_lines.append(f"{res[0]} {res[1]} {res[2]} {res[3]} {res[4]}\n")
-
-            label_name = os.path.splitext(img_name)[0] + ".txt"
-            label_dst = os.path.join(labels_dir, split, label_name)
-            with open(label_dst, "w") as f:
-                f.writelines(yolo_lines)
-
-            stats[split]["images"] += 1
-            stats[split]["trees"] += len(yolo_lines)
+    if not os.path.exists(base_dir):
+        base_dir = "dataset_lightning"
+        os.makedirs(base_dir, exist_ok=True)
 
     data_yaml_path = os.path.join(base_dir, "data.yaml")
+    abs_base = os.path.abspath(base_dir).replace("\\", "/")
+    
     yaml_dict = {
-        "path": os.path.abspath(base_dir).replace("\\", "/"),
+        "path": abs_base,
         "train": "images/train",
         "val": "images/val",
         "test": "images/test",
@@ -151,9 +61,12 @@ def prepare_lightning_dataset(base_dir="dataset_lightning"):
     with open(data_yaml_path, "w") as f:
         yaml.dump(yaml_dict, f)
 
-    print(f"Dataset prepared successfully:")
-    for s, st in stats.items():
-        print(f"  - {s.upper():<6}: {st['images']} images, {st['trees']} crown annotations")
+    print(f"Configured dataset at: {abs_base}")
+    for split in ["train", "val", "test"]:
+        split_img_dir = os.path.join(base_dir, "images", split)
+        imgs = os.listdir(split_img_dir) if os.path.exists(split_img_dir) else []
+        print(f"  - {split.upper():<6}: {len(imgs)} images ({', '.join(imgs)})")
+
     print(f"Config YAML: {data_yaml_path}")
     return data_yaml_path
 
@@ -213,11 +126,18 @@ def train_on_lightning(data_yaml, device, epochs=30, batch_size=8, imgsz=640, lr
 
     # Save export weights
     os.makedirs("models/custom", exist_ok=True)
-    best_src = os.path.join("lightning_runs", "treevision_yolo", "weights", "best.pt")
+    best_src = os.path.join(str(results.save_dir), "weights", "best.pt")
+    if not os.path.exists(best_src):
+        for root, _, files in os.walk("runs"):
+            if "best.pt" in files:
+                best_src = os.path.join(root, "best.pt")
+                break
     best_dst = os.path.join("models", "custom", "best.pt")
     if os.path.exists(best_src):
         shutil.copyfile(best_src, best_dst)
-        print(f"\n🎉 Best trained model saved to: {best_dst}")
+        print(f"\n🎉 Best trained model saved to: {best_dst} (from {best_src})")
+    else:
+        print(f"\n⚠️ Could not find best.pt in {results.save_dir}")
     
     with open("lightning_eval_metrics.json", "w") as f:
         json.dump(metrics, f, indent=2)

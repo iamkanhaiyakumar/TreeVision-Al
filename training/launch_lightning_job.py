@@ -8,6 +8,12 @@ import os
 import sys
 import time
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 def run_lightning_cloud_pipeline(machine_type="T4", epochs=30):
     print("=" * 65)
     print("⚡ TREEVISION AI — LIGHTNING AI CLOUD GPU ORCHESTRATOR")

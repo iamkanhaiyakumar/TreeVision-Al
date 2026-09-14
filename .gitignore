@@ -30,6 +30,7 @@ outputs/
 logs/
 .cache/
 wandb/
+*.tar.gz
 
 # OS / Editor Files
 .DS_Store
